@@ -20,13 +20,24 @@
               <li>
                 <i class="fa fa-calendar"></i><%= @post_image.created_at.strftime('%Y/%m/%d') %>
               </li>
+              <% if @post_image.favorited_by?(current_user) %>
               <li>
-                <i class="fa fa-heart"></i>
-                <a href="#">202 いいね</a>
+                <%= link_to post_image_favorites_path(@post_image), method: :delete do %>
+                  <i class="fa fa-heart" aria-hidden="true" style="color: red;"></i>
+                  <%= @post_image.favorites.count %>いいね
+                <% end %>
               </li>
+              <% else %>
+              <li>
+                <%= link_to post_image_favorites_path(@post_image), method: :post do %>
+                  <i class="fa faheart-o" aria-hidden="true"></i>
+                  <%= @post_image.favorites.count %>いいね
+                <% end %>
+              </li>
+              <% end %>
               <li>
                 <i class="fa fa-comment"></i>
-                <a href="#comments"><%= @post_image.post_comment.count %></a>
+                <a href="comments"><%= @post_image.post_comments.count %></a>
               </li>
             </ul>
             <div class="post-content-inner mt-20">
@@ -55,10 +66,16 @@
                         <span class="comment-date"><%= post_comment.created_at.strftime('%Y/%m/%d') %></span>
                       </span>
                     </div>
-                    <div class="comment-entry"><%= post_comments.comment %></div>
+                    <div class="comment-entry"><%= post_comment.comment %></div>
+                    <% if post_comment.user == current_user %>
+                      <div>
+                        <%= link_to "削除", post_image_post_comment_path(post_comment.post_image, post_comment), method: :delete, class: "btn btn-danger pull-right" %>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
               </li>
+              <% end %>
             </ol>
           </div>
           <hr>
@@ -69,14 +86,14 @@
               <span>コメント</span>
             </h3>
           </div>
-          <form class="mt-20">
+          <%= form_for [@post_image, @post_comment] do |f| %>
             <div class="row">
               <div class="col-sm-12">
-                <textarea class="form-control" rows="5" placeholder="コメントをここに"></textarea>
+                <%= f.text_area :comment, rows:'5', class: "form-control",placeholder: "コメントをここに" %>
               </div>
             </div>
-            <button type="submit" class="btn btn-lg btn-base-1 mt-20 pull-right">送信する</button>
-          </form>
+            <%= f.submit "送信する", class: "btn btn-lg btn-base-1 mt-20 pull-right" %>
+          <% end %>
 
         </div>
       </div>
